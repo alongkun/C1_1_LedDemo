@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import HardLib.*;
+
 public class MainActivity extends AppCompatActivity {
 
     private boolean ledSta = false;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         checkBox_4 = (CheckBox) findViewById(R.id.checkbox_4);
 
         button_1.setOnClickListener(buttonClickListener);
+
+        HardControl.ledOpen();
     }
 
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
@@ -59,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
                         checkBox_2.setChecked(false);
                         checkBox_3.setChecked(false);
                         checkBox_4.setChecked(false);
+
+                        for(int i = 0; i < 4; i++)
+                            HardControl.ledCtrl(i, 0);
                     }
                     else {
                         ledSta = true;
@@ -67,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
                         checkBox_2.setChecked(true);
                         checkBox_3.setChecked(true);
                         checkBox_4.setChecked(true);
+
+                        for(int i = 0; i < 4; i++)
+                            HardControl.ledCtrl(i, 1);
                     }
                     break;
             }
@@ -79,15 +89,27 @@ public class MainActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.checkbox_1:
                 if (checked)
-                    Toast.makeText(getApplicationContext(), "LED 1 ON", Toast.LENGTH_SHORT).show();
+                    HardControl.ledCtrl(0, 1);
                 else
-                    Toast.makeText(getApplicationContext(), "LED 1 OFF", Toast.LENGTH_SHORT).show();
+                    HardControl.ledCtrl(0, 0);
                 break;
             case R.id.checkbox_2:
+                if (checked)
+                    HardControl.ledCtrl(1, 1);
+                else
+                    HardControl.ledCtrl(1, 0);
                 break;
             case R.id.checkbox_3:
+                if (checked)
+                    HardControl.ledCtrl(2, 1);
+                else
+                    HardControl.ledCtrl(2, 0);
                 break;
             case R.id.checkbox_4:
+                if (checked)
+                    HardControl.ledCtrl(3, 1);
+                else
+                    HardControl.ledCtrl(4, 0);
                 break;
             default:
                 break;
