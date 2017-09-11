@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 if (checked)
                     HardControl.ledCtrl(3, 1);
                 else
-                    HardControl.ledCtrl(4, 0);
+                    HardControl.ledCtrl(3, 0);
                 break;
             default:
                 break;

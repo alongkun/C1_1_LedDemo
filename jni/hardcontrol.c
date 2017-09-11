@@ -16,20 +16,33 @@ static jint fd;
 
 jint ledOpen_c(JNIEnv *env, jobject cls)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "native ledOpen ...");
-    return 0;
+
+
+    fd = open("/dev/leds_test", O_RDWR);
+    if (fd >= 0)
+        __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "ledOpen success...");
+    else
+        __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "ledOpen error...");
+
+    return 0 ;
 }
 
 void ledClose_c(JNIEnv *env, jobject cls)
 {
     __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "native ledClose ...");
 
+    close(fd);
 }
 
 jint ledCtrl_c(JNIEnv *env, jobject cls, jint led, jint status)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "native ledCtrl ...");
-    return 0;
+
+
+    int ret = ioctl(fd, status, led);
+
+    __android_log_print(ANDROID_LOG_DEBUG, "LEDDemo", "ledCtrl ret = %d", ret);
+
+    return ret;
 }
 
 static const JNINativeMethod methods[] = {
