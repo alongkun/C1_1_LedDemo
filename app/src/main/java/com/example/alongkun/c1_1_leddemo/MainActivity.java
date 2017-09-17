@@ -1,6 +1,7 @@
 package com.example.alongkun.c1_1_leddemo;
 
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +13,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import HardLib.*;
+import android.os.ILedService;
+import android.os.ServiceManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox checkBox_2 = null;
     private CheckBox checkBox_3 = null;
     private CheckBox checkBox_4 = null;
+
+    private ILedService iLedService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         button_1.setOnClickListener(buttonClickListener);
 
-        HardControl.ledOpen();
+        iLedService = ILedService.Stub.asInterface(ServiceManager.getService("led"));
+
     }
 
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
@@ -64,8 +69,13 @@ public class MainActivity extends AppCompatActivity {
                         checkBox_3.setChecked(false);
                         checkBox_4.setChecked(false);
 
-                        for(int i = 0; i < 4; i++)
-                            HardControl.ledCtrl(i, 0);
+                        for(int i = 0; i < 4; i++) {
+                            try {
+                                iLedService.ledCtrl(i, 0);
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     else {
                         ledSta = true;
@@ -75,8 +85,13 @@ public class MainActivity extends AppCompatActivity {
                         checkBox_3.setChecked(true);
                         checkBox_4.setChecked(true);
 
-                        for(int i = 0; i < 4; i++)
-                            HardControl.ledCtrl(i, 1);
+                        for(int i = 0; i < 4; i++) {
+                            try {
+                                iLedService.ledCtrl(i, 1);
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     break;
             }
@@ -86,33 +101,38 @@ public class MainActivity extends AppCompatActivity {
     public void onCheckboxClicked(View view) {
         boolean checked = ((CheckBox)view).isChecked();
 
-        switch (view.getId()) {
-            case R.id.checkbox_1:
-                if (checked)
-                    HardControl.ledCtrl(0, 1);
-                else
-                    HardControl.ledCtrl(0, 0);
-                break;
-            case R.id.checkbox_2:
-                if (checked)
-                    HardControl.ledCtrl(1, 1);
-                else
-                    HardControl.ledCtrl(1, 0);
-                break;
-            case R.id.checkbox_3:
-                if (checked)
-                    HardControl.ledCtrl(2, 1);
-                else
-                    HardControl.ledCtrl(2, 0);
-                break;
-            case R.id.checkbox_4:
-                if (checked)
-                    HardControl.ledCtrl(3, 1);
-                else
-                    HardControl.ledCtrl(3, 0);
-                break;
-            default:
-                break;
+        try {
+            switch (view.getId()) {
+                case R.id.checkbox_1:
+                    if (checked)
+                        iLedService.ledCtrl(0, 1);
+                    else
+                        iLedService.ledCtrl(0, 0);
+                    break;
+                case R.id.checkbox_2:
+                    if (checked)
+                        iLedService.ledCtrl(1, 1);
+                    else
+                        iLedService.ledCtrl(1, 0);
+                    break;
+                case R.id.checkbox_3:
+                    if (checked)
+                        iLedService.ledCtrl(2, 1);
+                    else
+                        iLedService.ledCtrl(2, 0);
+                    break;
+                case R.id.checkbox_4:
+                    if (checked)
+                        iLedService.ledCtrl(3, 1);
+                    else
+                        iLedService.ledCtrl(3, 0);
+                    break;
+                default:
+                    break;
+            }
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
 
     }
