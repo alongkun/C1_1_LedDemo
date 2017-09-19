@@ -1,7 +1,9 @@
 package com.example.alongkun.c1_1_leddemo;
 
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +15,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import android.os.ILedService;
-import android.os.ServiceManager;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+//import android.os.ILedService;
+//import android.os.ServiceManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox checkBox_3 = null;
     private CheckBox checkBox_4 = null;
 
-    private ILedService iLedService = null;
+    private Object proxy = null;
+    private Method ledCtrl = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +59,23 @@ public class MainActivity extends AppCompatActivity {
 
         button_1.setOnClickListener(buttonClickListener);
 
-        iLedService = ILedService.Stub.asInterface(ServiceManager.getService("led"));
+//        iLedService = ILedService.Stub.asInterface(ServiceManager.getService("led"));
 
+        try {
+            Method get_service = Class.forName("android.os.ServiceManager").getMethod("getService", String.class);
+            Object led_service = get_service.invoke(null, "led");
+            Method asInterface = Class.forName("android.os.ILedService$Stub").getMethod("asInterface", IBinder.class);
+            proxy = asInterface.invoke(null, led_service);
+            ledCtrl = Class.forName("android.os.ILedService$Stub$Proxy").getMethod("ledCtrl", int.class, int.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private View.OnClickListener buttonClickListener = new View.OnClickListener() {
@@ -71,8 +93,10 @@ public class MainActivity extends AppCompatActivity {
 
                         for(int i = 0; i < 4; i++) {
                             try {
-                                iLedService.ledCtrl(i, 0);
-                            } catch (RemoteException e) {
+                                ledCtrl.invoke(proxy, i, 0);
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            } catch (IllegalAccessException e) {
                                 e.printStackTrace();
                             }
                         }
@@ -87,8 +111,10 @@ public class MainActivity extends AppCompatActivity {
 
                         for(int i = 0; i < 4; i++) {
                             try {
-                                iLedService.ledCtrl(i, 1);
-                            } catch (RemoteException e) {
+                                ledCtrl.invoke(proxy, i, 1);
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            } catch (IllegalAccessException e) {
                                 e.printStackTrace();
                             }
                         }
@@ -105,33 +131,35 @@ public class MainActivity extends AppCompatActivity {
             switch (view.getId()) {
                 case R.id.checkbox_1:
                     if (checked)
-                        iLedService.ledCtrl(0, 1);
+                        ledCtrl.invoke(proxy, 0, 1);
                     else
-                        iLedService.ledCtrl(0, 0);
+                        ledCtrl.invoke(proxy, 0, 0);
                     break;
                 case R.id.checkbox_2:
                     if (checked)
-                        iLedService.ledCtrl(1, 1);
+                        ledCtrl.invoke(proxy, 1, 1);
                     else
-                        iLedService.ledCtrl(1, 0);
+                        ledCtrl.invoke(proxy, 1, 0);
                     break;
                 case R.id.checkbox_3:
                     if (checked)
-                        iLedService.ledCtrl(2, 1);
+                        ledCtrl.invoke(proxy, 2, 1);
                     else
-                        iLedService.ledCtrl(2, 0);
+                        ledCtrl.invoke(proxy, 2, 0);
                     break;
                 case R.id.checkbox_4:
                     if (checked)
-                        iLedService.ledCtrl(3, 1);
+                        ledCtrl.invoke(proxy, 3, 1);
                     else
-                        iLedService.ledCtrl(3, 0);
+                        ledCtrl.invoke(proxy, 3, 0);
                     break;
                 default:
                     break;
             }
 
-        } catch (RemoteException e) {
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
 
